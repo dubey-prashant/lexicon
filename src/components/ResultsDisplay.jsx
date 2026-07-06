@@ -88,6 +88,7 @@ const ErrorState = ({ error }) => {
 // Main Results Display Component - Handles both legacy and new schema formats
 const ResultsDisplay = ({ result, isLoading, error }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [speechError, setSpeechError] = useState(false);
 
   // Pronounce word using Web Speech API
   const pronounceWord = (word) => {
@@ -96,6 +97,7 @@ const ResultsDisplay = ({ result, isLoading, error }) => {
       window.speechSynthesis.cancel();
 
       setIsPlaying(true);
+      setSpeechError(false);
 
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.rate = 0.7; // Slightly slower for clarity
@@ -104,11 +106,16 @@ const ResultsDisplay = ({ result, isLoading, error }) => {
 
       // Reset playing state when finished
       utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
+      utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event.error);
+        setIsPlaying(false);
+        setSpeechError(true);
+      };
 
       window.speechSynthesis.speak(utterance);
     } else {
       console.error('Speech synthesis not supported');
+      setSpeechError(true);
     }
   };
 
@@ -196,6 +203,12 @@ const ResultsDisplay = ({ result, isLoading, error }) => {
               )}
             </button>
           </div>
+
+          {speechError && (
+            <p className='text-xs text-red-500 mt-1'>
+              Pronunciation unavailable — no speech voices found on this device
+            </p>
+          )}
         </div>
 
         {/* Definitions - Simplified Design */}

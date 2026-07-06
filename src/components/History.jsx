@@ -9,8 +9,8 @@ const History = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadHistory = () => {
-      const searchHistory = searchService.getSearchHistory();
+    const loadHistory = async () => {
+      const searchHistory = await searchService.getSearchHistory();
       setHistory(searchHistory);
     };
     loadHistory();
@@ -55,9 +55,9 @@ const History = () => {
     }
   };
 
-  const clearHistory = () => {
+  const clearHistory = async () => {
     if (window.confirm('Are you sure you want to clear your search history?')) {
-      localStorage.removeItem('search_history');
+      await searchService.clearHistory();
       setHistory([]);
     }
   };

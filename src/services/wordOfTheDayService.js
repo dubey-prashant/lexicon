@@ -1,3 +1,5 @@
+import * as storage from './storage';
+
 // Enhanced Word of the Day service with smart daily caching
 class WordOfTheDayService {
   constructor() {
@@ -14,10 +16,10 @@ class WordOfTheDayService {
   }
 
   // Get cached WOTD for today
-  getCachedWOTD() {
+  async getCachedWOTD() {
     try {
       const cache = JSON.parse(
-        localStorage.getItem(this.WOTD_CACHE_KEY) || '{}'
+        (await storage.getItem(this.WOTD_CACHE_KEY)) || '{}'
       );
       const todayKey = this.getTodayKey();
       return cache[todayKey] || null;
@@ -28,10 +30,10 @@ class WordOfTheDayService {
   }
 
   // Cache WOTD for today
-  cacheWOTD(wordData) {
+  async cacheWOTD(wordData) {
     try {
       const cache = JSON.parse(
-        localStorage.getItem(this.WOTD_CACHE_KEY) || '{}'
+        (await storage.getItem(this.WOTD_CACHE_KEY)) || '{}'
       );
       const todayKey = this.getTodayKey();
 
@@ -61,7 +63,7 @@ class WordOfTheDayService {
         }
       });
 
-      localStorage.setItem(this.WOTD_CACHE_KEY, JSON.stringify(cleanCache));
+      await storage.setItem(this.WOTD_CACHE_KEY, JSON.stringify(cleanCache));
     } catch (error) {
       console.error('Error caching WOTD:', error);
     }
@@ -100,25 +102,30 @@ class WordOfTheDayService {
 
   // Main fetch method with fallback chain
   async fetchWordOfTheDay() {
+    // Opportunistic cleanup of stale cache entries
+    await this.cleanupCache();
+
     // First check cache
-    const cached = this.getCachedWOTD();
+    const cached = await this.getCachedWOTD();
     if (cached) {
       return cached;
     }
 
     // Try API first, fallback if needed
     try {
-      return await this.fetchFromWordnik();
+      const wotd = await this.fetchFromWordnik();
+      await this.cacheWOTD(wotd);
+      return wotd;
     } catch {
       return this.getFallbackWordOfTheDay();
     }
   }
 
   // Clean up old cache entries
-  cleanupCache() {
+  async cleanupCache() {
     try {
       const cache = JSON.parse(
-        localStorage.getItem(this.WOTD_CACHE_KEY) || '{}'
+        (await storage.getItem(this.WOTD_CACHE_KEY)) || '{}'
       );
       const today = new Date();
       const validKeys = [];
@@ -140,7 +147,7 @@ class WordOfTheDayService {
         }
       });
 
-      localStorage.setItem(this.WOTD_CACHE_KEY, JSON.stringify(cleanCache));
+      await storage.setItem(this.WOTD_CACHE_KEY, JSON.stringify(cleanCache));
     } catch (err) {
       console.error('Error cleaning WOTD cache:', err);
     }

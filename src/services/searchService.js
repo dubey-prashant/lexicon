@@ -1,3 +1,5 @@
+import * as storage from './storage';
+
 class SearchService {
   constructor() {
     this.DICTIONARY_CACHE_KEY = 'dictionary_cache';
@@ -146,10 +148,10 @@ class SearchService {
   }
 
   // Get cached dictionary result
-  getCachedWord(word) {
+  async getCachedWord(word) {
     try {
       const cache = JSON.parse(
-        localStorage.getItem(this.DICTIONARY_CACHE_KEY) || '{}'
+        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}'
       );
       const cached = cache[word.toLowerCase()];
 
@@ -163,7 +165,7 @@ class SearchService {
       if (cacheAge > expiryTime) {
         // Remove expired entry
         delete cache[word.toLowerCase()];
-        localStorage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
+        await storage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
         return null;
       }
 
@@ -175,10 +177,10 @@ class SearchService {
   }
 
   // Cache dictionary result
-  cacheWord(word, data) {
+  async cacheWord(word, data) {
     try {
       const cache = JSON.parse(
-        localStorage.getItem(this.DICTIONARY_CACHE_KEY) || '{}'
+        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}'
       );
       cache[word.toLowerCase()] = {
         data,
@@ -191,12 +193,12 @@ class SearchService {
         // Sort by timestamp and keep only the 80 most recent
         const sorted = entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
         const trimmed = Object.fromEntries(sorted.slice(0, 80));
-        localStorage.setItem(
+        await storage.setItem(
           this.DICTIONARY_CACHE_KEY,
           JSON.stringify(trimmed)
         );
       } else {
-        localStorage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
+        await storage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
       }
     } catch (error) {
       console.error('Error caching dictionary result:', error);
@@ -204,10 +206,10 @@ class SearchService {
   }
 
   // Add to search history with full result data
-  addToHistory(word, result) {
+  async addToHistory(word, result) {
     try {
       let history = JSON.parse(
-        localStorage.getItem(this.SEARCH_HISTORY_KEY) || '[]'
+        (await storage.getItem(this.SEARCH_HISTORY_KEY)) || '[]'
       );
 
       // Remove existing entry if present
@@ -235,20 +237,25 @@ class SearchService {
         history = history.slice(0, this.MAX_HISTORY_ITEMS);
       }
 
-      localStorage.setItem(this.SEARCH_HISTORY_KEY, JSON.stringify(history));
+      await storage.setItem(this.SEARCH_HISTORY_KEY, JSON.stringify(history));
     } catch (error) {
       console.error('Error updating search history:', error);
     }
   }
 
   // Get search history
-  getSearchHistory() {
+  async getSearchHistory() {
     try {
-      return JSON.parse(localStorage.getItem(this.SEARCH_HISTORY_KEY) || '[]');
+      return JSON.parse((await storage.getItem(this.SEARCH_HISTORY_KEY)) || '[]');
     } catch (error) {
       console.error('Error reading search history:', error);
       return [];
     }
+  }
+
+  // Clear search history
+  async clearHistory() {
+    await storage.removeItem(this.SEARCH_HISTORY_KEY);
   }
 
   // Search Words API (RapidAPI)
@@ -353,10 +360,13 @@ class SearchService {
       throw new Error('Please enter a word to search');
     }
 
+    // Opportunistic cleanup of expired cache entries
+    await this.cleanupCache();
+
     // Check cache first
-    const cached = this.getCachedWord(trimmedWord);
+    const cached = await this.getCachedWord(trimmedWord);
     if (cached) {
-      this.addToHistory(trimmedWord, cached);
+      await this.addToHistory(trimmedWord, cached);
       return cached;
     }
 
@@ -365,15 +375,15 @@ class SearchService {
       const standardData = await this.searchDictionaryAPI(trimmedWord);
 
       // Cache in our standard format
-      this.cacheWord(trimmedWord, standardData);
+      await this.cacheWord(trimmedWord, standardData);
 
       // Add to history
-      this.addToHistory(trimmedWord, standardData);
+      await this.addToHistory(trimmedWord, standardData);
 
       return standardData;
     } catch (error) {
       // Add failed search to history
-      this.addToHistory(trimmedWord, null);
+      await this.addToHistory(trimmedWord, null);
 
       // If it fails, throw the error
       if (error instanceof NotFoundError) {
@@ -390,10 +400,10 @@ class SearchService {
   }
 
   // Clean up old cache entries
-  cleanupCache() {
+  async cleanupCache() {
     try {
       const cache = JSON.parse(
-        localStorage.getItem(this.DICTIONARY_CACHE_KEY) || '{}'
+        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}'
       );
       const now = Date.now();
       const expiryTime = this.CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
@@ -408,7 +418,7 @@ class SearchService {
       }
 
       if (cleaned) {
-        localStorage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
+        await storage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
       }
     } catch (error) {
       console.error('Error cleaning cache:', error);

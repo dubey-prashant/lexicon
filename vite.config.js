@@ -1,23 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { fileURLToPath } from 'url';
 import tailwindcss from '@tailwindcss/vite';
 
-// https://vite.dev/config/
+// Standalone web app build (the default target: `npm run dev` / `build`).
+// See vite.config.extension.js for the browser extension popup build.
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    outDir: 'dist',
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'index.html'),
-      },
-      output: {
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].js',
-        assetFileNames: '[name].[ext]',
+        web: fileURLToPath(new URL('./index.html', import.meta.url)),
       },
     },
   },
-  base: './',
+  base: '/',
 });

@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:ext": "vite --config vite.config.extension.js",
+    "build:ext": "vite build --config vite.config.extension.js",
+    "preview:ext": "vite preview --config vite.config.extension.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",

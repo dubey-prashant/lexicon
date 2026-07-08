@@ -4,23 +4,23 @@ import { searchService } from '../services/searchService';
 import { useWordNavigation } from '../hooks/useWordNavigation';
 import WordList from './WordList';
 
-const History = () => {
-  const [history, setHistory] = useState([]);
+const Favorites = () => {
+  const [favorites, setFavorites] = useState([]);
   const navigate = useNavigate();
   const { isLoading, handleWordClick } = useWordNavigation();
 
   useEffect(() => {
-    const loadHistory = async () => {
-      const searchHistory = await searchService.getSearchHistory();
-      setHistory(searchHistory);
+    const loadFavorites = async () => {
+      const favoriteWords = await searchService.getFavorites();
+      setFavorites(favoriteWords);
     };
-    loadHistory();
+    loadFavorites();
   }, []);
 
-  const clearHistory = async () => {
-    if (window.confirm('Are you sure you want to clear your search history?')) {
-      await searchService.clearHistory();
-      setHistory([]);
+  const clearFavorites = async () => {
+    if (window.confirm('Are you sure you want to clear all favorites?')) {
+      await searchService.clearFavorites();
+      setFavorites([]);
     }
   };
 
@@ -49,13 +49,13 @@ const History = () => {
             </svg>
           </button>
           <h1 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
-            Search History
+            Favorites
           </h1>
         </div>
 
-        {history.length > 0 && (
+        {favorites.length > 0 && (
           <button
-            onClick={clearHistory}
+            onClick={clearFavorites}
             className='bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus-ring'
           >
             Clear All
@@ -64,16 +64,16 @@ const History = () => {
       </div>
 
       <WordList
-        items={history}
+        items={favorites}
         isLoading={isLoading}
         onItemClick={handleWordClick}
-        searchPlaceholder='Search history...'
-        emptyIconPath='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-        emptyTitle='No search history found'
-        emptySubtitle='Start searching for words to see them here'
+        searchPlaceholder='Search favorites...'
+        emptyIconPath='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
+        emptyTitle='No favorites yet'
+        emptySubtitle='Star a word from its results to save it here'
       />
     </div>
   );
 };
 
-export default History;
+export default Favorites;

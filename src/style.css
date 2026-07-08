@@ -1,5 +1,21 @@
 @import 'tailwindcss';
 
+/* Enables dark: variants to be toggled via a .dark class on <html>,
+   instead of only following prefers-color-scheme. useTheme.js manages the class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Colors the actual page canvas (not just the app's inner container) so the
+   web app's dark background covers the full viewport, not just the centered
+   content column — <html>'s background paints the whole canvas per the CSS
+   spec, so this fills margins/short-content areas too. */
+html {
+  background-color: #ffffff;
+}
+
+html.dark {
+  background-color: var(--color-gray-950);
+}
+
 /* Minimalist Design System - White & Indigo Theme */
 :root {
   --primary-indigo: #4f46e5;
@@ -124,4 +140,12 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-indigo-light);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--gray-800);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--gray-600);
 }

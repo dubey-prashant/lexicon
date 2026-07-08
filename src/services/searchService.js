@@ -4,6 +4,7 @@ class SearchService {
   constructor() {
     this.DICTIONARY_CACHE_KEY = 'dictionary_cache';
     this.SEARCH_HISTORY_KEY = 'search_history';
+    this.FAVORITES_KEY = 'favorites';
     this.CACHE_EXPIRY_DAYS = 365;
     this.MAX_HISTORY_ITEMS = 500;
   }
@@ -256,6 +257,65 @@ class SearchService {
   // Clear search history
   async clearHistory() {
     await storage.removeItem(this.SEARCH_HISTORY_KEY);
+  }
+
+  // Get favorited words (word only — re-fetches via the dictionary cache on open)
+  async getFavorites() {
+    try {
+      return JSON.parse((await storage.getItem(this.FAVORITES_KEY)) || '[]');
+    } catch (error) {
+      console.error('Error reading favorites:', error);
+      return [];
+    }
+  }
+
+  async isFavorite(word) {
+    const favorites = await this.getFavorites();
+    return favorites.some((item) => item.word === word.toLowerCase());
+  }
+
+  async addFavorite(word) {
+    try {
+      const favorites = await this.getFavorites();
+      const key = word.toLowerCase();
+      if (favorites.some((item) => item.word === key)) return;
+
+      favorites.unshift({
+        word: key,
+        displayWord: word,
+        timestamp: Date.now(),
+        found: true,
+      });
+      await storage.setItem(this.FAVORITES_KEY, JSON.stringify(favorites));
+    } catch (error) {
+      console.error('Error adding favorite:', error);
+    }
+  }
+
+  async removeFavorite(word) {
+    try {
+      const favorites = await this.getFavorites();
+      const key = word.toLowerCase();
+      const filtered = favorites.filter((item) => item.word !== key);
+      await storage.setItem(this.FAVORITES_KEY, JSON.stringify(filtered));
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
+  }
+
+  // Toggles favorite status for a word, returning the new favorited state
+  async toggleFavorite(word) {
+    const isFav = await this.isFavorite(word);
+    if (isFav) {
+      await this.removeFavorite(word);
+      return false;
+    }
+    await this.addFavorite(word);
+    return true;
+  }
+
+  async clearFavorites() {
+    await storage.removeItem(this.FAVORITES_KEY);
   }
 
   // Search Words API (RapidAPI)

@@ -1,8 +1,49 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../hooks/useTheme';
+
+const THEME_ICON = {
+  system: (
+    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth='1.5'
+        d='M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
+      />
+    </svg>
+  ),
+  light: (
+    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth='1.5'
+        d='M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'
+      />
+    </svg>
+  ),
+  dark: (
+    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth='1.5'
+        d='M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z'
+      />
+    </svg>
+  ),
+};
+
+const THEME_LABEL = {
+  system: 'Theme: System',
+  light: 'Theme: Light',
+  dark: 'Theme: Dark',
+};
 
 const Header = () => {
   const navigate = useNavigate();
+  const { theme, cycleTheme } = useTheme();
 
   return (
     <>
@@ -25,21 +66,53 @@ const Header = () => {
               ></path>
             </svg>
           </div>
-          <h1 className='text-lg font-bold text-indigo-900 tracking-tight'>
+          <h1 className='text-lg font-bold text-indigo-900 dark:text-indigo-300 tracking-tight'>
             LEXICON
           </h1>
         </div>
 
         {/* Action Buttons - Clean Design */}
         <div className='flex items-center space-x-1'>
+          {/* Theme Toggle Button */}
+          <button
+            onClick={cycleTheme}
+            className='bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 p-2 rounded-lg transition-all duration-200 group shadow-minimal hover:shadow-card focus-ring'
+            title={THEME_LABEL[theme]}
+          >
+            <span className='text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200 block'>
+              {THEME_ICON[theme]}
+            </span>
+          </button>
+
+          {/* Favorites Button */}
+          <button
+            onClick={() => navigate('/favorites')}
+            className='bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 p-2 rounded-lg transition-all duration-200 group shadow-minimal hover:shadow-card focus-ring'
+            title='Favorites'
+          >
+            <svg
+              className='w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='1.5'
+                d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
+              ></path>
+            </svg>
+          </button>
+
           {/* History Button */}
           <button
             onClick={() => navigate('/history')}
-            className='bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 p-2 rounded-lg transition-all duration-200 group shadow-minimal hover:shadow-card focus-ring'
+            className='bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 p-2 rounded-lg transition-all duration-200 group shadow-minimal hover:shadow-card focus-ring'
             title='Search History'
           >
             <svg
-              className='w-4 h-4 text-gray-600 group-hover:text-indigo-600 transition-colors duration-200'
+              className='w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'

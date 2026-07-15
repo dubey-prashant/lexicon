@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import SearchForm from './SearchForm';
 import ResultsDisplay from './ResultsDisplay';
 import WordOfTheDay from './WordOfTheDay';
 import { searchService } from '../services/searchService';
+import { consumePendingLookup } from '../services/pendingLookup';
 
 function Main() {
   const [searchResult, setSearchResult] = useState(null);
@@ -27,8 +28,9 @@ function Main() {
     }
   }, [location.state]);
 
-  // Handle Word of the Day click
-  const handleWordOfTheDayClick = async (word) => {
+  // Shared by Word of the Day clicks and the context-menu "Search in
+  // Lexicon" handoff below.
+  const performSearch = useCallback(async (word) => {
     setIsLoading(true);
     setError(null);
     setSearchResult(null);
@@ -52,7 +54,17 @@ function Main() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Pick up a word queued by the right-click "Search in Lexicon" context
+  // menu (extension only — consumePendingLookup resolves to null on web,
+  // since storage.js falls back to plain localStorage there and nothing
+  // ever writes this key outside the extension's background script).
+  useEffect(() => {
+    consumePendingLookup().then((word) => {
+      if (word) performSearch(word);
+    });
+  }, [performSearch]);
 
   return (
     <div className=''>
@@ -83,7 +95,7 @@ function Main() {
 
       {/* Word of the Day - Always visible */}
       <div className='mt-3'>
-        <WordOfTheDay onWordClick={handleWordOfTheDayClick} />
+        <WordOfTheDay onWordClick={performSearch} />
       </div>
     </div>
   );

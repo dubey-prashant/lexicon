@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "dev:ext": "vite --config vite.config.extension.js",
-    "build:ext": "vite build --config vite.config.extension.js",
+    "build:ext": "vite build --config vite.config.extension.js && vite build --config vite.config.content.js",
     "preview:ext": "vite preview --config vite.config.extension.js",
     "lint": "eslint ."
   },

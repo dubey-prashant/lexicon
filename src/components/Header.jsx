@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
+import { isExtensionContext } from '../services/storage';
+import { isPillEnabled, setPillEnabled } from '../services/settings';
 
 const THEME_ICON = {
   system: (
@@ -44,6 +46,23 @@ const THEME_LABEL = {
 const Header = () => {
   const navigate = useNavigate();
   const { theme, cycleTheme } = useTheme();
+  const [pillEnabled, setPillEnabledState] = useState(true);
+
+  // The selection pill only exists in the extension (content scripts don't
+  // run on the plain web app), so this toggle only renders there.
+  const showPillToggle = isExtensionContext();
+
+  useEffect(() => {
+    if (showPillToggle) {
+      isPillEnabled().then(setPillEnabledState);
+    }
+  }, [showPillToggle]);
+
+  const togglePill = async () => {
+    const next = !pillEnabled;
+    await setPillEnabled(next);
+    setPillEnabledState(next);
+  };
 
   return (
     <>
@@ -125,6 +144,32 @@ const Header = () => {
               ></path>
             </svg>
           </button>
+
+          {/* Selection Pill Toggle (extension only) */}
+          {showPillToggle && (
+            <button
+              onClick={togglePill}
+              className={`p-2 rounded-lg transition-all duration-200 group shadow-minimal hover:shadow-card focus-ring border ${
+                pillEnabled
+                  ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700 opacity-50'
+              }`}
+              title={
+                pillEnabled
+                  ? 'Selection lookup: On (click to disable)'
+                  : 'Selection lookup: Off (click to enable)'
+              }
+            >
+              <svg
+                className='w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <rect x='4' y='4' width='16' height='16' rx='2' strokeDasharray='4 3' strokeWidth='1.5' />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </>

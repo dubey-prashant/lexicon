@@ -17,7 +17,10 @@ html.dark {
 }
 
 /* Minimalist Design System - White & Indigo Theme */
-:root {
+/* :host makes these variables resolve inside a shadow root too (the selection
+   card renders in one) — :root never matches there, :host is its counterpart,
+   and each selector is inert in the context the other one targets. */
+:root, :host {
   --primary-indigo: #4f46e5;
   --primary-indigo-light: #6366f1;
   --primary-indigo-dark: #3730a3;

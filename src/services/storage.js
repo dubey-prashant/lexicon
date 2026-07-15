@@ -5,6 +5,10 @@
 
 const hasChromeStorage = typeof chrome !== 'undefined' && !!chrome.storage?.local;
 
+// Shared feature-detection for "am I running inside the extension" (popup,
+// background, or content script) vs. the plain web app.
+export const isExtensionContext = () => hasChromeStorage;
+
 export async function getItem(key) {
   if (hasChromeStorage) {
     const result = await chrome.storage.local.get(key);

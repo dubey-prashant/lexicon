@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAutocomplete } from '../hooks/useAutocomplete';
 import AutocompleteDropdown from './AutocompleteDropdown';
-import { searchService, NotFoundError } from '../services/searchService';
+import { searchService, NotFoundError } from '../services/search';
 
 const SearchForm = ({ onSearch, onLoading, onError }) => {
   const [query, setQuery] = useState('');

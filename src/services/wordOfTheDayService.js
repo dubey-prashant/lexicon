@@ -1,18 +1,26 @@
 import * as storage from './storage';
 
+const dateKey = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate()
+  ).padStart(2, '0')}`;
+
+// Every YYYY-MM-DD key for the last `days` days (including today).
+const getLastNDaysKeys = (days) => {
+  const today = new Date();
+  const keys = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    keys.push(dateKey(date));
+  }
+  return keys;
+};
+
 // Enhanced Word of the Day service with smart daily caching
 class WordOfTheDayService {
   constructor() {
     this.WOTD_CACHE_KEY = 'wotd_cache';
-  }
-
-  // Get today's date string for cache key
-  getTodayKey() {
-    const today = new Date();
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
-      2,
-      '0'
-    )}-${String(today.getDate()).padStart(2, '0')}`;
   }
 
   // Get cached WOTD for today
@@ -21,41 +29,25 @@ class WordOfTheDayService {
       const cache = JSON.parse(
         (await storage.getItem(this.WOTD_CACHE_KEY)) || '{}'
       );
-      const todayKey = this.getTodayKey();
-      return cache[todayKey] || null;
+      return cache[dateKey(new Date())] || null;
     } catch (error) {
       console.error('Error reading WOTD cache:', error);
       return null;
     }
   }
 
-  // Cache WOTD for today
+  // Cache WOTD for today, trimming to the last 7 days at the same time
   async cacheWOTD(wordData) {
     try {
       const cache = JSON.parse(
         (await storage.getItem(this.WOTD_CACHE_KEY)) || '{}'
       );
-      const todayKey = this.getTodayKey();
-
-      // Store today's WOTD
-      cache[todayKey] = {
+      cache[dateKey(new Date())] = {
         ...wordData,
         cachedAt: Date.now(),
       };
 
-      // Clean up old entries (keep only last 7 days)
-      const today = new Date();
-      const validKeys = [];
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        const key = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        validKeys.push(key);
-      }
-
-      // Remove old entries
+      const validKeys = getLastNDaysKeys(7);
       const cleanCache = {};
       validKeys.forEach((key) => {
         if (cache[key]) {
@@ -127,18 +119,7 @@ class WordOfTheDayService {
       const cache = JSON.parse(
         (await storage.getItem(this.WOTD_CACHE_KEY)) || '{}'
       );
-      const today = new Date();
-      const validKeys = [];
-
-      // Keep only last 7 days
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        const key = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        validKeys.push(key);
-      }
+      const validKeys = getLastNDaysKeys(7);
 
       const cleanCache = {};
       validKeys.forEach((key) => {

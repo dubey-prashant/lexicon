@@ -35,55 +35,6 @@ class SearchService {
    * }
    */
 
-  // Transform Words API data to our schema
-  transformWordsAPIData(data) {
-    const meanings = new Map();
-
-    // Group definitions by part of speech
-    if (data.results && Array.isArray(data.results)) {
-      data.results.forEach((result) => {
-        const partOfSpeech = result.partOfSpeech || 'unknown';
-
-        if (!meanings.has(partOfSpeech)) {
-          meanings.set(partOfSpeech, {
-            partOfSpeech,
-            definitions: [],
-          });
-        }
-
-        const definition = {
-          definition: result.definition,
-        };
-
-        if (result.examples && result.examples.length > 0) {
-          definition.example = result.examples[0];
-        }
-
-        if (result.synonyms && result.synonyms.length > 0) {
-          definition.synonyms = result.synonyms;
-        }
-
-        if (result.antonyms && result.antonyms.length > 0) {
-          definition.antonyms = result.antonyms;
-        }
-
-        meanings.get(partOfSpeech).definitions.push(definition);
-      });
-    }
-
-    return {
-      word: data.word,
-      pronunciation: data.pronunciation
-        ? {
-            text: data.pronunciation.all,
-          }
-        : null,
-      meanings: Array.from(meanings.values()),
-      source: 'wordsapi',
-      timestamp: Date.now(),
-    };
-  }
-
   // Transform Dictionary API data to our schema
   transformDictionaryAPIData(data) {
     const meanings = [];
@@ -206,7 +157,11 @@ class SearchService {
     }
   }
 
-  // Add to search history with full result data
+  // Add to search history. Deliberately lightweight — word + metadata only,
+  // no embedded result — same pattern favorites already uses. The dictionary
+  // cache is the single source of truth for definitions; this way clearing
+  // history can never affect it, and there's no duplicate copy of the same
+  // definition sitting in two places.
   async addToHistory(word, result) {
     try {
       let history = JSON.parse(
@@ -218,20 +173,12 @@ class SearchService {
         (item) => item.word.toLowerCase() !== word.toLowerCase()
       );
 
-      // Add new entry at the beginning with full result data
-      const historyEntry = {
+      history.unshift({
         word: word.toLowerCase(),
         displayWord: word,
         timestamp: Date.now(),
         found: !!result,
-      };
-
-      // Store full result data if available
-      if (result) {
-        historyEntry.dictionaryResult = result;
-      }
-
-      history.unshift(historyEntry);
+      });
 
       // Limit history size
       if (history.length > this.MAX_HISTORY_ITEMS) {
@@ -316,54 +263,6 @@ class SearchService {
 
   async clearFavorites() {
     await storage.removeItem(this.FAVORITES_KEY);
-  }
-
-  // Search Words API (RapidAPI)
-  async searchWordsAPI(word) {
-    const trimmedWord = word.trim();
-
-    if (!trimmedWord) {
-      throw new Error('Please enter a word to search');
-    }
-
-    try {
-      const response = await fetch(
-        `https://wordsapiv1.p.rapidapi.com/words/${encodeURIComponent(
-          trimmedWord
-        )}/`,
-        {
-          method: 'GET',
-          headers: {
-            'X-RapidAPI-Host': import.meta.env.VITE_RAPIDAPI_HOST,
-            'X-RapidAPI-Key': import.meta.env.VITE_RAPIDAPI_KEY,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new NotFoundError(
-            `"${trimmedWord}" could not be found in Words API.`
-          );
-        }
-        throw new Error(`Words API HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!data || !data.word) {
-        throw new NotFoundError(
-          `"${trimmedWord}" could not be found in Words API.`
-        );
-      }
-
-      return this.transformWordsAPIData(data);
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        throw error;
-      }
-      throw new Error('Unable to fetch from Words API: ' + error.message);
-    }
   }
 
   // Search Dictionary API (Free API)

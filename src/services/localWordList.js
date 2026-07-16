@@ -2146,16 +2146,6 @@ export class LocalWordList {
 
     return suggestions;
   }
-
-  // Check if a word exists in our local list
-  hasWord(word) {
-    return this.words.includes(word.toLowerCase());
-  }
-
-  // Get word count
-  getWordCount() {
-    return this.words.length;
-  }
 }
 
 // Create a singleton instance

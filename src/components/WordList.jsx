@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Shared list UI for History and Favorites: search filter, loading indicator,
 // empty states, and the clickable word list itself.

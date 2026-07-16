@@ -1,4 +1,3 @@
-import React from 'react';
 import AutocompleteShimmer from './AutocompleteShimmer';
 
 const AutocompleteDropdown = ({

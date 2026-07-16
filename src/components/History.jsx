@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { searchService } from '../services/searchService';
+import { searchService } from '../services/search';
 import { useWordNavigation } from '../hooks/useWordNavigation';
 import WordList from './WordList';
 

@@ -4,7 +4,7 @@ import Header from './Header';
 import SearchForm from './SearchForm';
 import ResultsDisplay from './ResultsDisplay';
 import WordOfTheDay from './WordOfTheDay';
-import { searchService } from '../services/searchService';
+import { searchService } from '../services/search';
 import { consumePendingLookup } from '../services/pendingLookup';
 
 function Main() {

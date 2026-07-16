@@ -159,11 +159,6 @@ export const useAutocomplete = () => {
     setSelectedIndex(-1);
   }, []);
 
-  // Clear cache
-  const clearCache = useCallback(() => {
-    cacheRef.current.clear();
-  }, []);
-
   return {
     suggestions,
     isVisible,
@@ -173,6 +168,5 @@ export const useAutocomplete = () => {
     handleKeyDown,
     selectSuggestion,
     hideSuggestions,
-    clearCache,
   };
 };

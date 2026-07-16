@@ -1,4 +1,3 @@
-import React from 'react';
 import DefinitionCard from './DefinitionCard';
 
 // Minimalist Loading Component

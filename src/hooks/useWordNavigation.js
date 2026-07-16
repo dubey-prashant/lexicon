@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { searchService } from '../services/searchService';
+import { searchService } from '../services/search';
 
 // Shared by History and Favorites: clicking an item searches (or reuses a
 // cached result) and navigates back to the main page with the outcome.
@@ -12,13 +12,10 @@ export function useWordNavigation() {
     setIsLoading(true);
 
     try {
-      let result;
-      if (item.dictionaryResult) {
-        result = item.dictionaryResult;
-      } else {
-        result = await searchService.searchDictionary(item.displayWord);
-      }
-
+      // searchDictionary() already checks the dictionary cache first, so
+      // this is instant for anything still cached and only hits the network
+      // for words that fell out of the cache's 100-entry window.
+      const result = await searchService.searchDictionary(item.displayWord);
       navigate('/', { state: { searchResult: result } });
     } catch (err) {
       const errorState =

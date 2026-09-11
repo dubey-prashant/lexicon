@@ -1,60 +1,47 @@
-# 📖 Lexicon Dictionary - Your Smart Vocabulary Companion
+# Lexicon — Dictionary Browser Extension
 
-> A beautiful, lightning-fast dictionary extension that learns with you. Get instant definitions, explore new words daily, and build your vocabulary effortlessly.
+A dictionary browser extension for instant word lookups, with search history and word-of-the-day. Available on Chrome and Edge, with 200+ active users.
 
-## 🚀 Install Now
-
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Install-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lexicon/ecjhibfihcgalgmeainnjemfcdlmaldm)
 [![Microsoft Edge](https://img.shields.io/badge/Edge-Install-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/dictionary-dubeytech/ohennnffikahbbihomgmkflmljfggiad)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Install-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lexicon/ecjhibfihcgalgmeainnjemfcdlmaldm)
 
-## ✨ Why You'll Love Lexicon
+## Features
 
-🚀 **Instant Results** - Smart caching means zero wait time for words you've looked up before  
-🎯 **Smart Suggestions** - Type a few letters and get intelligent autocomplete suggestions  
-📚 **Complete Word Info** - Definitions, synonyms, examples, pronunciation - everything in one place  
-🌟 **Word of the Day** - Discover new vocabulary with beautiful daily word features  
-📈 **Track Your Progress** - Built-in search history to see how your vocabulary grows  
-🎨 **Beautiful Design** - Clean, minimalist interface that's easy on the eyes
+- Word lookup with definitions, synonyms/antonyms, examples, and pronunciation
+- Select any text on a webpage to reveal an inline pill for instant explanations, without leaving the page
+- AI-powered contextual explanations
+- Local caching for instant results on repeat lookups
+- Search history, favorites, stored locally
+- Word-of-the-day
 
-## 🔥 Key Features
+## Tech Stack
 
-### **Comprehensive Dictionary**
+React.js, Chrome Extension APIs, Gemini API (contextual explanations), Tailwind CSS
 
-- **Rich Definitions** with multiple meanings and parts of speech
-- **Real Examples** showing how words are used in context
-- **Synonyms & Antonyms** to expand your vocabulary
-- **Pronunciation Guide** with audio support
-- **Word Frequency** to know how common a word is
+## Status
 
-### 🌟 **Daily Word Discovery**
+Actively maintained — improvements ongoing.
 
-- **Word of the Day** with beautiful visual cards
-- **Curated Content** featuring interesting and useful words
-- **Learn Something New** every time you open the extension
+## Local Development
 
-### 🧠 **Smart Learning**
+```bash
+git clone https://github.com/dubey-prashant/lexicon.git
+cd lexicon
+npm install
 
-- **Search History** - never lose track of words you've learned
-- **Instant Autocomplete** as you type
-- **Local Storage** - your favorite words available offline
-- **Progress Tracking** - see your vocabulary journey
+# Web preview
+npm run dev
 
-### 🎨 **Delightful Experience**
+# Build the browser extension
+npm run build:ext
+```
 
-- **Minimalist Design** that focuses on content
-- **Smooth Animations** and responsive interface
-- **Fast & Reliable** - works even when your connection is slow
-- **Privacy First** - all your data stays on your device
+Then load the built extension as an unpacked extension via `chrome://extensions` (enable Developer Mode first).
 
-### Get Started in Seconds
+## Privacy
 
-1. **Install** the extension from Chrome Web Store
-2. **Start Searching** - just type any word you want to know
-3. **Discover Daily** - check out the Word of the Day
-4. **Build Your Vocabulary** - track your progress in search history
-
-That's it! No sign-ups, no complicated setup. Just instant access to a world of words.
+Search history and cached lookups are stored locally on-device.
 
 ---
 
-_Made with ❤️ for word lovers and lifelong learners_
+_Note: `npm run dev` runs the web app in the browser for quick iteration; `npm run build:ext` produces the actual packaged extension._

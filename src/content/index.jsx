@@ -1,10 +1,33 @@
 import { createRoot } from 'react-dom/client';
 import SelectionWidget from './SelectionWidget';
-// The `?inline` suffix tells Vite not to inject this stylesheet into the
-// page's own <head> (which is what happens by default) — instead it hands
-// back the compiled CSS as a plain string, which we inject into the shadow
-// root ourselves below. A shadow root can't see <head> stylesheets anyway.
+import * as storage from '../services/storage';
+import { THEME_KEY, themeIsDark } from '../hooks/useTheme';
+// ?inline gives us the compiled CSS as a string instead of injecting it into <head>, which a shadow root can't see anyway
 import contentStyles from '../style.css?inline';
+
+// mirrors the stored theme onto the shadow container, since its CSS can't reach the page's <html>.dark class; stays live via storage + media-query listeners
+function syncTheme(container) {
+  let currentTheme = 'system';
+
+  const apply = () =>
+    container.classList.toggle('dark', themeIsDark(currentTheme));
+
+  storage.getItem(THEME_KEY).then((stored) => {
+    currentTheme = stored || 'system';
+    apply();
+  });
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes[THEME_KEY]) {
+      currentTheme = changes[THEME_KEY].newValue || 'system';
+      apply();
+    }
+  });
+
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', apply);
+}
 
 function init() {
   const host = document.createElement('div');
@@ -14,12 +37,7 @@ function init() {
   host.style.left = '0';
   host.style.zIndex = '2147483647'; // max z-index, sit above the page's own UI
 
-  // Attached to <html>, not <body>: some pages set a `transform` (or
-  // `filter`/`perspective`) on <body> or a high-level wrapper for effects
-  // like parallax, which quietly changes what `position: fixed` descendants
-  // are positioned relative to (the transformed ancestor instead of the
-  // viewport). <html> having one of those is far rarer, so this is safer,
-  // if not airtight — a page transforming <html> itself would still break it.
+  // attached to <html> not <body> — a transformed <body> would break position:fixed descendants, <html> rarely is
   document.documentElement.appendChild(host);
 
   const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -30,6 +48,8 @@ function init() {
 
   const container = document.createElement('div');
   shadowRoot.appendChild(container);
+
+  syncTheme(container);
 
   createRoot(container).render(<SelectionWidget hostElement={host} />);
 }

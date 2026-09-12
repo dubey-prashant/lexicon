@@ -1,4 +1,32 @@
 import * as storage from './storage';
+import * as freeDictionaryApi from './providers/freeDictionaryApi';
+import * as dictionaryApi from './providers/dictionaryApi';
+import { NotFoundError } from './NotFoundError';
+
+// merges a differently-cased variant's meanings into the base result, grouped by partOfSpeech
+function mergeMeanings(base, extra) {
+  const meanings = base.meanings.map((m) => ({
+    ...m,
+    definitions: [...m.definitions],
+  }));
+  const byPartOfSpeech = new Map(meanings.map((m) => [m.partOfSpeech, m]));
+
+  for (const extraMeaning of extra.meanings) {
+    const existing = byPartOfSpeech.get(extraMeaning.partOfSpeech);
+    if (existing) {
+      existing.definitions.push(...extraMeaning.definitions);
+    } else {
+      const copy = {
+        ...extraMeaning,
+        definitions: [...extraMeaning.definitions],
+      };
+      meanings.push(copy);
+      byPartOfSpeech.set(copy.partOfSpeech, copy);
+    }
+  }
+
+  return { ...base, meanings };
+}
 
 class SearchService {
   constructor() {
@@ -10,7 +38,8 @@ class SearchService {
   }
 
   /**
-   * Our standardized dictionary schema:
+   * Our standardized dictionary schema (each provider in ./providers/
+   * transforms its own API's response into this shape):
    * {
    *   word: string,
    *   pronunciation: {
@@ -30,80 +59,21 @@ class SearchService {
    *       ]
    *     }
    *   ],
-   *   source: string, // 'wordsapi' | 'dictionaryapi'
+   *   attribution: {
+   *     url?: string,
+   *     license?: string,
+   *     licenseUrl?: string
+   *   } | null, // required by the CC BY-SA data sources — see DefinitionCard
+   *   source: string, // 'freedictionaryapi' | 'dictionaryapi' | 'wordsapi'
    *   timestamp: number
    * }
    */
-
-  // Transform Dictionary API data to our schema
-  transformDictionaryAPIData(data) {
-    const meanings = [];
-
-    if (data.meanings && Array.isArray(data.meanings)) {
-      data.meanings.forEach((meaning) => {
-        const meaningObj = {
-          partOfSpeech: meaning.partOfSpeech,
-          definitions: [],
-        };
-
-        if (meaning.definitions && Array.isArray(meaning.definitions)) {
-          meaning.definitions.forEach((def) => {
-            const definition = {
-              definition: def.definition,
-            };
-
-            if (def.example) {
-              definition.example = def.example;
-            }
-
-            if (def.synonyms && def.synonyms.length > 0) {
-              definition.synonyms = def.synonyms;
-            }
-
-            if (def.antonyms && def.antonyms.length > 0) {
-              definition.antonyms = def.antonyms;
-            }
-
-            meaningObj.definitions.push(definition);
-          });
-        }
-
-        meanings.push(meaningObj);
-      });
-    }
-
-    // Extract pronunciation
-    let pronunciation = null;
-    if (
-      data.phonetics &&
-      Array.isArray(data.phonetics) &&
-      data.phonetics.length > 0
-    ) {
-      const phonetic = data.phonetics.find((p) => p.text) || data.phonetics[0];
-      if (phonetic) {
-        pronunciation = {
-          text: phonetic.text,
-        };
-        if (phonetic.audio) {
-          pronunciation.audio = phonetic.audio;
-        }
-      }
-    }
-
-    return {
-      word: data.word,
-      pronunciation,
-      meanings,
-      source: 'dictionaryapi',
-      timestamp: Date.now(),
-    };
-  }
 
   // Get cached dictionary result
   async getCachedWord(word) {
     try {
       const cache = JSON.parse(
-        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}'
+        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}',
       );
       const cached = cache[word.toLowerCase()];
 
@@ -132,7 +102,7 @@ class SearchService {
   async cacheWord(word, data) {
     try {
       const cache = JSON.parse(
-        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}'
+        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}',
       );
       cache[word.toLowerCase()] = {
         data,
@@ -147,7 +117,7 @@ class SearchService {
         const trimmed = Object.fromEntries(sorted.slice(0, 80));
         await storage.setItem(
           this.DICTIONARY_CACHE_KEY,
-          JSON.stringify(trimmed)
+          JSON.stringify(trimmed),
         );
       } else {
         await storage.setItem(this.DICTIONARY_CACHE_KEY, JSON.stringify(cache));
@@ -157,20 +127,16 @@ class SearchService {
     }
   }
 
-  // Add to search history. Deliberately lightweight — word + metadata only,
-  // no embedded result — same pattern favorites already uses. The dictionary
-  // cache is the single source of truth for definitions; this way clearing
-  // history can never affect it, and there's no duplicate copy of the same
-  // definition sitting in two places.
+  // stores word + metadata only, no embedded result — the dictionary cache is the source of truth for definitions
   async addToHistory(word, result) {
     try {
       let history = JSON.parse(
-        (await storage.getItem(this.SEARCH_HISTORY_KEY)) || '[]'
+        (await storage.getItem(this.SEARCH_HISTORY_KEY)) || '[]',
       );
 
       // Remove existing entry if present
       history = history.filter(
-        (item) => item.word.toLowerCase() !== word.toLowerCase()
+        (item) => item.word.toLowerCase() !== word.toLowerCase(),
       );
 
       history.unshift({
@@ -194,7 +160,9 @@ class SearchService {
   // Get search history
   async getSearchHistory() {
     try {
-      return JSON.parse((await storage.getItem(this.SEARCH_HISTORY_KEY)) || '[]');
+      return JSON.parse(
+        (await storage.getItem(this.SEARCH_HISTORY_KEY)) || '[]',
+      );
     } catch (error) {
       console.error('Error reading search history:', error);
       return [];
@@ -265,53 +233,7 @@ class SearchService {
     await storage.removeItem(this.FAVORITES_KEY);
   }
 
-  // Search Dictionary API (Free API)
-  async searchDictionaryAPI(word) {
-    const trimmedWord = word.trim();
-
-    if (!trimmedWord) {
-      throw new Error('Please enter a word to search');
-    }
-
-    try {
-      const response = await fetch(
-        `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
-          trimmedWord
-        )}`,
-        {
-          method: 'GET',
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new NotFoundError(
-            `"${trimmedWord}" could not be found in Dictionary API.`
-          );
-        }
-        throw new Error(
-          `Dictionary API HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        throw new NotFoundError(
-          `"${trimmedWord}" could not be found in Dictionary API.`
-        );
-      }
-
-      return this.transformDictionaryAPIData(data[0]);
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        throw error;
-      }
-      throw new Error('Unable to fetch from Dictionary API: ' + error.message);
-    }
-  }
-
-  // Main search function using Dictionary API as primary
+  // Free Dictionary API primary, dictionaryapi.dev as fallback (only on the primary erroring out, not a clean not-found)
   async searchDictionary(word) {
     const trimmedWord = word.trim();
 
@@ -319,24 +241,44 @@ class SearchService {
       throw new Error('Please enter a word to search');
     }
 
+    // lowercased for cache key + fetch; trimmedWord's original casing is kept only for history display
+    const lookupWord = trimmedWord.toLowerCase();
+
     // Opportunistic cleanup of expired cache entries
     await this.cleanupCache();
 
     // Check cache first
-    const cached = await this.getCachedWord(trimmedWord);
+    const cached = await this.getCachedWord(lookupWord);
     if (cached) {
       await this.addToHistory(trimmedWord, cached);
       return cached;
     }
 
     try {
-      // Use Dictionary API as primary source
-      const standardData = await this.searchDictionaryAPI(trimmedWord);
+      let standardData;
+      try {
+        standardData = await freeDictionaryApi.search(lookupWord);
+      } catch (primaryError) {
+        if (primaryError instanceof NotFoundError) {
+          throw primaryError;
+        }
+        standardData = await dictionaryApi.search(lookupWord);
+      }
+
+      // e.g. "Free" vs "free" can be genuinely different entries (surname vs adjective) — best-effort merge, ok to fail
+      if (trimmedWord !== lookupWord) {
+        try {
+          const casedVariant = await freeDictionaryApi.search(trimmedWord);
+          standardData = mergeMeanings(standardData, casedVariant);
+        } catch {
+          // no distinct entry for this casing — the lowercase result stands on its own
+        }
+      }
 
       // Cache in our standard format
-      await this.cacheWord(trimmedWord, standardData);
+      await this.cacheWord(lookupWord, standardData);
 
-      // Add to history
+      // Add to history (original casing preserved for display)
       await this.addToHistory(trimmedWord, standardData);
 
       return standardData;
@@ -347,13 +289,13 @@ class SearchService {
       // If it fails, throw the error
       if (error instanceof NotFoundError) {
         throw new NotFoundError(
-          `"${trimmedWord}" could not be found in the dictionary.`
+          `"${trimmedWord}" could not be found in the dictionary.`,
         );
       }
 
       // For network errors, throw a general error
       throw new Error(
-        'Unable to fetch word definition. Please check your internet connection and try again.'
+        'Unable to fetch word definition. Please check your internet connection and try again.',
       );
     }
   }
@@ -362,7 +304,7 @@ class SearchService {
   async cleanupCache() {
     try {
       const cache = JSON.parse(
-        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}'
+        (await storage.getItem(this.DICTIONARY_CACHE_KEY)) || '{}',
       );
       const now = Date.now();
       const expiryTime = this.CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
@@ -382,14 +324,6 @@ class SearchService {
     } catch (error) {
       console.error('Error cleaning cache:', error);
     }
-  }
-}
-
-// Custom error for word not found
-class NotFoundError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'NotFoundError';
   }
 }
 

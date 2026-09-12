@@ -1,5 +1,12 @@
 {
   "name": "lexicon",
+  "description": "A dictionary browser extension and web app with instant lookups, search history, favorites, and AI-powered explanations for words and phrases.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dubey-prashant/lexicon.git"
+  },
+  "author": "Prashant Dubey",
+  "license": "MIT",
   "private": true,
   "version": "2.0.1",
   "type": "module",

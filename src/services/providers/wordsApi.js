@@ -1,18 +1,12 @@
-// Parked, not deleted: this was the Words API (RapidAPI) integration, live
-// in src/services/search.js until it was replaced by dictionaryapi.dev as
-// the primary source. Never wired back in as a fallback, so it's been dead
-// code — but it's real working logic, kept here for when a multi-API
-// fallback chain (dictionaryapi.dev -> Words API -> AI) gets built.
-//
-// To reactivate: move transformWordsAPIData and searchWordsAPI back into
-// the SearchService class in src/services/search.js (as `this.x` methods
-// again), and set VITE_RAPIDAPI_HOST / VITE_RAPIDAPI_KEY in .env.
-//
-// Requires `NotFoundError` from src/services/search.js.
+import { NotFoundError } from '../NotFoundError';
 
-// Transform Words API data to our standardized schema (see search.js for
-// the schema shape).
-export function transformWordsAPIData(data) {
+// Words API (RapidAPI) — NOT currently wired into search.js's fallback
+// chain. Live in this repo's early history, replaced by dictionaryapi.dev
+// and then by freeDictionaryApi.js. Kept here, in the same shape as its
+// sibling providers, for when a third fallback tier is wanted — to activate,
+// import { search as wordsApiSearch } from './providers/wordsApi' in
+// search.js and add a call to it, and set VITE_RAPIDAPI_HOST/KEY in .env.
+function transform(data) {
   const meanings = new Map();
 
   // Group definitions by part of speech
@@ -60,10 +54,7 @@ export function transformWordsAPIData(data) {
   };
 }
 
-// Search Words API (RapidAPI). `NotFoundError` must be passed in since this
-// file is intentionally outside the active service and can't import it
-// without creating a real dependency on parked code.
-export async function searchWordsAPI(word, NotFoundError) {
+export async function search(word) {
   const trimmedWord = word.trim();
 
   if (!trimmedWord) {
@@ -101,7 +92,7 @@ export async function searchWordsAPI(word, NotFoundError) {
       );
     }
 
-    return transformWordsAPIData(data);
+    return transform(data);
   } catch (error) {
     if (error instanceof NotFoundError) {
       throw error;

@@ -2,19 +2,71 @@ import { useState, useEffect } from 'react';
 import { searchService } from '../services/search';
 import { STAR_ICON_PATH } from './icons';
 
+const MAX_DEFINITIONS_BEFORE_COLLAPSE = 3;
+
+// One part-of-speech section. Collapsed to maxVisible definitions by default
+// with a "Show N more" toggle (disable via collapsible=false for the compact card).
+const MeaningGroup = ({
+  meaning,
+  maxVisible = MAX_DEFINITIONS_BEFORE_COLLAPSE,
+  collapsible = true,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = collapsible && meaning.definitions.length > maxVisible;
+  const visibleDefinitions = expanded
+    ? meaning.definitions
+    : meaning.definitions.slice(0, maxVisible);
+
+  return (
+    <div className='mb-4'>
+      <h2 className='text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3'>
+        {meaning.partOfSpeech}
+      </h2>
+
+      <div className='space-y-3'>
+        {visibleDefinitions.map((definition, defIndex) => (
+          <div key={defIndex}>
+            <div className='border-l-3 border-gray-300 dark:border-gray-600 pl-3'>
+              <p className='text-gray-900 dark:text-gray-100 text-sm leading-relaxed mb-1'>
+                {definition.definition}
+              </p>
+
+              {definition.example && (
+                <p className='text-gray-600 dark:text-gray-400 italic text-xs leading-relaxed'>
+                  {definition.example}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {hasMore && (
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          className='mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline'
+        >
+          {expanded
+            ? 'Show less'
+            : `Show ${meaning.definitions.length - maxVisible} more`}
+        </button>
+      )}
+    </div>
+  );
+};
+
 const normalizeWordData = (data) => {
   if (!data) return null;
   return {
     word: data.word,
     pronunciation: data.pronunciation,
     meanings: data.meanings || [],
+    attribution: data.attribution || null,
     source: data.source || 'dictionaryapi',
   };
 };
 
-// Shared word/definitions display used by both the popup (ResultsDisplay)
-// and the in-page selection card. `compact` shows only the first meaning's
-// first definition, for the small floating card.
+// Shared between the popup (ResultsDisplay) and the in-page selection card; `compact` trims it down for the small floating card
 const DefinitionCard = ({ result, compact = false }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speechError, setSpeechError] = useState(false);
@@ -151,39 +203,55 @@ const DefinitionCard = ({ result, compact = false }) => {
       <div className='px-4 py-4'>
         {meanings.length > 0 && (
           <div className='space-y-4'>
-            {meanings.map((meaning, meaningIndex) => {
-              const definitions = compact
-                ? meaning.definitions.slice(0, 1)
-                : meaning.definitions;
-              return (
-                <div key={meaningIndex} className='mb-4'>
-                  <h2 className='text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3'>
-                    {meaning.partOfSpeech}
-                  </h2>
-
-                  <div className='space-y-3'>
-                    {definitions.map((definition, defIndex) => (
-                      <div key={defIndex} className=''>
-                        <div className='border-l-3 border-gray-300 dark:border-gray-600 pl-3'>
-                          <p className='text-gray-900 dark:text-gray-100 text-sm leading-relaxed mb-1'>
-                            {definition.definition}
-                          </p>
-
-                          {definition.example && (
-                            <p className='text-gray-600 dark:text-gray-400 italic text-xs leading-relaxed'>
-                              {definition.example}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+            {meanings.map((meaning, meaningIndex) => (
+              // word-qualified key so an expanded group can't carry its state over onto a new search
+              <MeaningGroup
+                key={`${wordData.word}-${meaningIndex}`}
+                meaning={meaning}
+                maxVisible={compact ? 1 : MAX_DEFINITIONS_BEFORE_COLLAPSE}
+                collapsible={!compact}
+              />
+            ))}
           </div>
         )}
       </div>
+
+      {/* CC BY-SA requires attribution; hidden in compact mode to keep the tiny card uncluttered */}
+      {!compact && wordData.attribution && (
+        <div className='px-4 py-2 border-t border-gray-100 dark:border-gray-700'>
+          <p className='text-[11px] text-gray-400 dark:text-gray-500'>
+            {wordData.attribution.url ? (
+              <a
+                href={wordData.attribution.url}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:underline'
+              >
+                Data from Wiktionary
+              </a>
+            ) : (
+              'Data from Wiktionary'
+            )}
+            {wordData.attribution.license && (
+              <>
+                {' · '}
+                {wordData.attribution.licenseUrl ? (
+                  <a
+                    href={wordData.attribution.licenseUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='hover:underline'
+                  >
+                    {wordData.attribution.license}
+                  </a>
+                ) : (
+                  wordData.attribution.license
+                )}
+              </>
+            )}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

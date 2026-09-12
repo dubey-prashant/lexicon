@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { wordOfTheDayService } from '../services/wordOfTheDayService';
+import { wordOfTheDayService } from '../services/wordOfTheDay';
 
 export const useWordOfTheDay = () => {
   const [wordOfTheDay, setWordOfTheDay] = useState(null);

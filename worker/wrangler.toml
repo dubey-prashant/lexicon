@@ -1,0 +1,17 @@
+name = "lexicon-ai"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Non-secret config. The real API keys are NOT here — set them with:
+#   npx wrangler secret put GROQ_API_KEY   (primary)
+#   npx wrangler secret put GEMINI_API_KEY (optional fallback — see src/index.js's askAI)
+# (run from this worker/ directory, after `npx wrangler login`)
+[vars]
+# Update this once the web app has a real Vercel URL. Can be a comma-separated
+# list if you add a custom domain later (see src/index.js's ALLOWED_ORIGINS).
+WEB_APP_ORIGIN = "https://lexicon.vercel.app,http://localhost:5173"
+# Only needed for testing the extension locally (unpacked, via chrome://
+# extensions) — Chrome assigns it a random ID, different from the real
+# published extension's ID which is already hardcoded in src/index.js.
+# Find yours on the extension's card in chrome://extensions once loaded.
+DEV_EXTENSION_ID = "jmfphhhgegieekcogbeocdlmefaklbnm"

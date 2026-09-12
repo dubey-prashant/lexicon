@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { searchService } from '../services/search';
+import { searchService, NotFoundError } from '../services/search';
 import { isPillEnabled } from '../services/settings';
 import DefinitionCard from '../components/DefinitionCard';
+import AskAI from '../components/AskAI';
 import { LOGO_ICON_PATH } from '../components/icons';
 
-// Longer selections are almost certainly a copy/paste, not a lookup —
-// keeps this feeling like a word/short-phrase tool, not a paragraph one.
+// caps this to a word/short-phrase tool, not a paragraph one
 const MAX_SELECTION_LENGTH = 60;
 
-// hostElement is the shadow host div created in index.jsx — used only to
-// detect "did this event originate from inside our own widget", since a
-// mouseup on our pill/card would otherwise bubble to document and trigger
-// the same dismiss logic that's supposed to react to clicks elsewhere.
+// hostElement (the shadow host from index.jsx) lets us detect clicks originating inside our own widget
 const SelectionWidget = ({ hostElement }) => {
   const [pillPosition, setPillPosition] = useState(null);
   const [selectedText, setSelectedText] = useState('');
@@ -29,9 +26,7 @@ const SelectionWidget = ({ hostElement }) => {
 
   useEffect(() => {
     const handleMouseUp = async (event) => {
-      // composedPath() includes shadow-DOM-internal nodes, unlike
-      // event.target (which gets retargeted to hostElement from outside the
-      // shadow root) — this is how we tell "click was inside our widget".
+      // composedPath() sees inside the shadow root, unlike the retargeted event.target
       if (event.composedPath().includes(hostElement)) return;
 
       let enabled;
@@ -90,7 +85,7 @@ const SelectionWidget = ({ hostElement }) => {
       setResult(data);
     } catch (err) {
       setError(
-        err.name === 'NotFoundError'
+        err instanceof NotFoundError
           ? { type: 'not_found', message: err.message, word: selectedText }
           : { type: 'network', message: err.message }
       );
@@ -129,10 +124,13 @@ const SelectionWidget = ({ hostElement }) => {
             </div>
           )}
           {error && (
-            <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-300'>
-              {error.type === 'not_found'
-                ? `"${error.word}" not found`
-                : 'Connection error — check your internet connection'}
+            <div className='space-y-2'>
+              <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-300'>
+                {error.type === 'not_found'
+                  ? `"${error.word}" not found`
+                  : 'Connection error — check your internet connection'}
+              </div>
+              {error.type === 'not_found' && <AskAI word={error.word} />}
             </div>
           )}
           {!isLoading && !error && result && (

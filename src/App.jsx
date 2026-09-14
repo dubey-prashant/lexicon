@@ -2,6 +2,7 @@ import { HashRouter, BrowserRouter, Routes, Route } from 'react-router-dom';
 import Main from './components/Main';
 import History from './components/History';
 import Favorites from './components/Favorites';
+import Settings from './components/Settings';
 import { useTheme } from './hooks/useTheme';
 import './style.css';
 
@@ -28,6 +29,7 @@ function App({ variant }) {
           <Route path='/' element={<Main />} />
           <Route path='/history' element={<History />} />
           <Route path='/favorites' element={<Favorites />} />
+          <Route path='/settings' element={<Settings />} />
         </Routes>
       </Router>
     </div>

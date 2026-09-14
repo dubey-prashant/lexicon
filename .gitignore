@@ -12,6 +12,7 @@ dist
 dist-extension
 dist-ssr
 *.local
+lexicon-extension-*.zip
 
 # Editor directories and files
 .vscode/*

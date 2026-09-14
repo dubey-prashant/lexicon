@@ -16,6 +16,7 @@
     "preview": "vite preview",
     "dev:ext": "vite --config vite.config.extension.js",
     "build:ext": "vite build --config vite.config.extension.js && vite build --config vite.config.content.js",
+    "release:ext": "npm run build:ext && node scripts/zip-extension.js",
     "preview:ext": "vite preview --config vite.config.extension.js",
     "lint": "eslint ."
   },
@@ -31,6 +32,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
+    "adm-zip": "^0.6.1",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

@@ -10,7 +10,7 @@ const AutocompleteDropdown = ({
   if (!isVisible) return null;
 
   return (
-    <div className='absolute z-50 w-full top-full left-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-elevated animate-fade-in mt-1'>
+    <div className='classic-panel absolute z-50 w-full top-full left-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-elevated animate-fade-in mt-1'>
       {/* Show shimmer when loading and no suggestions yet */}
       {isLoading && suggestions.length === 0 && <AutocompleteShimmer />}
 
@@ -27,17 +27,17 @@ const AutocompleteDropdown = ({
           {suggestions.map((suggestion, index) => (
             <button
               key={suggestion}
-              className={`w-full px-3 py-2 text-left text-sm transition-all duration-200 flex items-center justify-between ${
+              className={`w-full px-3 py-2 text-left text-sm transition-all duration-200 flex items-center justify-between classic:[font-family:var(--classic-font-body)] ${
                 index === selectedIndex
-                  ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-l-2 border-indigo-500'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-l-2 border-indigo-500 classic:bg-transparent classic:border-l-[var(--classic-edge-dark)] classic:text-[var(--classic-accent)]'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 classic:text-[var(--classic-ink)] classic:hover:bg-transparent'
               }`}
               onClick={() => onSelect(suggestion)}
             >
               <span className='font-medium'>{suggestion}</span>
               {index === selectedIndex && (
                 <svg
-                  className='w-3 h-3 text-indigo-500 dark:text-indigo-400'
+                  className='w-3 h-3 text-indigo-500 dark:text-indigo-400 classic:text-[var(--classic-accent)]'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -62,7 +62,7 @@ const AutocompleteDropdown = ({
 
       {/* Controls help */}
       {suggestions.length > 0 && (
-        <div className='px-3 py-1.5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900'>
+        <div className='classic-divider px-3 py-1.5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 classic:bg-transparent'>
           <div className='flex items-center justify-between text-xs text-gray-500 dark:text-gray-400'>
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>

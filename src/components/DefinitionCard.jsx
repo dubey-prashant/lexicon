@@ -18,21 +18,27 @@ const MeaningGroup = ({
     : meaning.definitions.slice(0, maxVisible);
 
   return (
-    <div className='mb-4'>
-      <h2 className='text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3'>
+    <div>
+      <h2 className='classic-heading classic-divider text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 pb-1'>
         {meaning.partOfSpeech}
       </h2>
 
       <div className='space-y-3'>
         {visibleDefinitions.map((definition, defIndex) => (
           <div key={defIndex}>
-            <div className='border-l-3 border-gray-300 dark:border-gray-600 pl-3'>
-              <p className='text-gray-900 dark:text-gray-100 text-sm leading-relaxed mb-1'>
+            <div
+              className={
+                visibleDefinitions.length > 1
+                  ? 'border-l-3 border-gray-300 dark:border-gray-600 classic:border-l-[var(--classic-edge-dark)] pl-3'
+                  : ''
+              }
+            >
+              <p className='text-gray-900 dark:text-gray-100 text-sm leading-relaxed mb-1 classic:text-[var(--classic-ink)] classic:[font-family:var(--classic-font-body)]'>
                 {definition.definition}
               </p>
 
               {definition.example && (
-                <p className='text-gray-600 dark:text-gray-400 italic text-xs leading-relaxed'>
+                <p className='text-gray-600 dark:text-gray-400 italic text-xs leading-relaxed classic:[font-family:var(--classic-font-body)]'>
                   {definition.example}
                 </p>
               )}
@@ -44,7 +50,7 @@ const MeaningGroup = ({
       {hasMore && (
         <button
           onClick={() => setExpanded((prev) => !prev)}
-          className='mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline'
+          className='mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 classic-accent hover:underline'
         >
           {expanded
             ? 'Show less'
@@ -126,27 +132,35 @@ const DefinitionCard = ({ result, compact = false }) => {
   const meanings = compact ? wordData.meanings.slice(0, 1) : wordData.meanings;
 
   return (
-    <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden'>
+    <div
+      className={
+        compact
+          ? 'overflow-hidden'
+          : 'classic-panel bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden'
+      }
+    >
       {/* Word Header */}
-      <div className='border-b border-gray-100 dark:border-gray-700 px-4 py-3'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-baseline space-x-3'>
-            <h1 className={`font-bold text-gray-800 dark:text-gray-100 ${compact ? 'text-lg' : 'text-2xl'}`}>
+      <div className='classic-divider border-b border-gray-100 dark:border-gray-700 px-4 py-3'>
+        <div className='flex items-start justify-between gap-2'>
+          <div className='flex flex-wrap items-baseline gap-x-3 gap-y-1 min-w-0'>
+            <h1
+              className={`classic-heading font-bold text-gray-800 dark:text-gray-100 ${compact ? 'text-lg' : 'text-2xl'}`}
+            >
               {wordData.word}
             </h1>
 
             {wordData.pronunciation?.text && (
-              <span className='text-gray-600 dark:text-gray-400 text-sm font-mono'>
+              <span className='text-gray-600 dark:text-gray-400 text-sm font-mono classic-accent whitespace-nowrap'>
                 {wordData.pronunciation.text}
               </span>
             )}
           </div>
 
-          <div className='flex items-center gap-1'>
+          <div className='flex items-center gap-1 shrink-0'>
             {/* Favorite Button */}
             <button
               onClick={handleToggleFavorite}
-              className={`px-2 py-1.5 rounded-md transition-all duration-200 focus-ring border ${
+              className={`classic-button px-2 py-1.5 rounded-md transition-all duration-200 focus-ring border ${
                 isFavorited
                   ? 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800 text-amber-500 dark:text-amber-400'
                   : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-amber-500 dark:hover:text-amber-400'
@@ -171,7 +185,7 @@ const DefinitionCard = ({ result, compact = false }) => {
             {/* Pronunciation Button */}
             <button
               onClick={() => pronounceWord(wordData.word)}
-              className={`px-2 py-1.5 rounded-md transition-all duration-200 focus-ring ${
+              className={`classic-button px-2 py-1.5 rounded-md transition-all duration-200 focus-ring ${
                 isPlaying
                   ? 'bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'
                   : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -180,11 +194,19 @@ const DefinitionCard = ({ result, compact = false }) => {
               disabled={isPlaying}
             >
               {isPlaying ? (
-                <svg className='w-4 h-4 animate-pulse' fill='currentColor' viewBox='0 0 24 24'>
+                <svg
+                  className='w-4 h-4 animate-pulse'
+                  fill='currentColor'
+                  viewBox='0 0 24 24'
+                >
                   <path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z' />
                 </svg>
               ) : (
-                <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 24 24'>
+                <svg
+                  className='w-4 h-4'
+                  fill='currentColor'
+                  viewBox='0 0 24 24'
+                >
                   <path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z' />
                 </svg>
               )}
@@ -200,7 +222,7 @@ const DefinitionCard = ({ result, compact = false }) => {
       </div>
 
       {/* Definitions */}
-      <div className='px-4 py-4'>
+      <div className='px-4 py-2'>
         {meanings.length > 0 && (
           <div className='space-y-4'>
             {meanings.map((meaning, meaningIndex) => (
@@ -218,7 +240,7 @@ const DefinitionCard = ({ result, compact = false }) => {
 
       {/* CC BY-SA requires attribution; hidden in compact mode to keep the tiny card uncluttered */}
       {!compact && wordData.attribution && (
-        <div className='px-4 py-2 border-t border-gray-100 dark:border-gray-700'>
+        <div className='classic-divider px-4 py-2 border-t border-gray-100 dark:border-gray-700'>
           <p className='text-[11px] text-gray-400 dark:text-gray-500'>
             {wordData.attribution.url ? (
               <a

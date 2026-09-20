@@ -26,7 +26,7 @@ const WordList = ({
             placeholder={searchPlaceholder}
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 text-sm'
+            className='classic-inset w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 text-sm classic:[font-family:var(--classic-font-body)]'
           />
         </div>
       )}
@@ -46,7 +46,7 @@ const WordList = ({
       <div className='space-y-2 max-h-[350px] overflow-y-auto'>
         {items.length === 0 ? (
           <div className='text-center py-8'>
-            <div className='w-12 h-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3'>
+            <div className='classic-panel w-12 h-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3'>
               <svg
                 className='w-6 h-6 text-gray-400 dark:text-gray-500'
                 fill='none'
@@ -70,7 +70,7 @@ const WordList = ({
           </div>
         ) : filteredItems.length === 0 ? (
           <div className='text-center py-8'>
-            <div className='w-12 h-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3'>
+            <div className='classic-panel w-12 h-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3'>
               <svg
                 className='w-6 h-6 text-gray-400 dark:text-gray-500'
                 fill='none'
@@ -94,13 +94,13 @@ const WordList = ({
           filteredItems.map((item, index) => (
             <div
               key={index}
-              className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-sm transition-all duration-200 cursor-pointer group'
+              className='classic-panel bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-sm transition-all duration-200 cursor-pointer group'
               onClick={() => onItemClick(item)}
             >
               <div className='flex items-center justify-between'>
                 <div className='flex-1'>
                   <div className='flex items-center space-x-3 mb-2'>
-                    <span className='text-gray-900 dark:text-gray-100 font-medium text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors'>
+                    <span className='classic-heading text-gray-900 dark:text-gray-100 font-medium text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 classic:group-hover:text-[var(--classic-accent)] transition-colors'>
                       {item.displayWord}
                     </span>
                     {!item.found && (
@@ -118,7 +118,7 @@ const WordList = ({
                   </div>
                 </div>
                 <svg
-                  className='w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors'
+                  className='w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 classic:text-[var(--classic-ink)] classic:group-hover:text-[var(--classic-accent)] transition-colors'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'

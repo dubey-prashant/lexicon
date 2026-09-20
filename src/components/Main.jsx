@@ -6,6 +6,9 @@ import ResultsDisplay from './ResultsDisplay';
 import WordOfTheDay from './WordOfTheDay';
 import { searchService } from '../services/search';
 import { consumePendingLookup } from '../services/pendingLookup';
+import { LOGO_ICON_PATH } from './icons';
+
+const COFFEE_URL = 'https://buymeacoffee.com/dubey_prashant';
 
 function Main() {
   const [searchResult, setSearchResult] = useState(null);
@@ -97,6 +100,28 @@ function Main() {
       <div className='mt-3'>
         <WordOfTheDay onWordClick={performSearch} />
       </div>
+
+      <a
+        href={COFFEE_URL}
+        target='_blank'
+        rel='noopener noreferrer'
+        className='flex items-center justify-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 classic:hover:text-[var(--classic-accent)] mt-3 transition-colors duration-200'
+      >
+        <svg
+          className='w-3.5 h-3.5'
+          fill='none'
+          stroke='currentColor'
+          viewBox='0 0 24 24'
+        >
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            strokeWidth='2'
+            d={LOGO_ICON_PATH}
+          />
+        </svg>
+        Buy me a Book
+      </a>
     </div>
   );
 }

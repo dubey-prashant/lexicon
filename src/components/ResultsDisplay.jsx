@@ -3,26 +3,26 @@ import AskAI from './AskAI';
 
 // Minimalist Loading Component
 const LoadingState = () => (
-  <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-fade-in'>
+  <div className='classic-panel bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-fade-in'>
     <div className='flex items-center justify-center py-6'>
       <div className='relative'>
-        <div className='w-8 h-8 border-2 border-gray-200 dark:border-gray-600 rounded-full animate-spin'>
-          <div className='absolute top-0 left-0 w-8 h-8 border-2 border-transparent border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin'></div>
+        <div className='w-8 h-8 border-2 border-gray-200 dark:border-gray-600 classic:border-[var(--classic-edge-dark)] rounded-full animate-spin'>
+          <div className='absolute top-0 left-0 w-8 h-8 border-2 border-transparent border-t-indigo-600 dark:border-t-indigo-400 classic:border-t-[var(--classic-accent)] rounded-full animate-spin'></div>
         </div>
       </div>
     </div>
     <div className='text-center'>
-      <p className='text-gray-600 dark:text-gray-300 text-sm font-medium'>
+      <p className='text-gray-600 dark:text-gray-300 text-sm font-medium classic:[font-family:var(--classic-font-body)]'>
         Searching dictionary...
       </p>
       <div className='flex items-center justify-center space-x-1 mt-2'>
-        <div className='w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-gentle-pulse'></div>
+        <div className='w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 classic:bg-[var(--classic-accent)] rounded-full classic:rounded-none animate-gentle-pulse'></div>
         <div
-          className='w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-gentle-pulse'
+          className='w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 classic:bg-[var(--classic-accent)] rounded-full classic:rounded-none animate-gentle-pulse'
           style={{ animationDelay: '0.2s' }}
         ></div>
         <div
-          className='w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-gentle-pulse'
+          className='w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 classic:bg-[var(--classic-accent)] rounded-full classic:rounded-none animate-gentle-pulse'
           style={{ animationDelay: '0.4s' }}
         ></div>
       </div>
@@ -38,7 +38,7 @@ const ErrorState = ({ error }) => {
 
     return (
       <div className='animate-slide-up'>
-        <div className='bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4'>
+        <div className='classic-box bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4'>
           <div className='flex items-center'>
             <svg
               className='w-7 h-7 text-yellow-600 dark:text-yellow-500 mr-3'
@@ -71,7 +71,7 @@ const ErrorState = ({ error }) => {
 
   // Connection error
   return (
-    <div className='bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 animate-slide-up'>
+    <div className='classic-box bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 animate-slide-up'>
       <div className='flex items-center'>
         <svg
           className='w-5 h-5 text-red-600 dark:text-red-500 mr-3'

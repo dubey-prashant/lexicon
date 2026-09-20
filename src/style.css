@@ -1,13 +1,12 @@
 @import 'tailwindcss';
 
-/* Enables dark: variants to be toggled via a .dark class on <html>,
-   instead of only following prefers-color-scheme. useTheme.js manages the class. */
+/* dark: matches a .dark class on <html> (set by useTheme.js), not just prefers-color-scheme */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Colors the actual page canvas (not just the app's inner container) so the
-   web app's dark background covers the full viewport, not just the centered
-   content column — <html>'s background paints the whole canvas per the CSS
-   spec, so this fills margins/short-content areas too. */
+/* classic: is an independent skin toggle (useSkin.js), orthogonal to dark: so classic:dark: combos work */
+@custom-variant classic (&:where(.classic, .classic *));
+
+/* <html>'s own background paints the whole viewport, not just the app's content column */
 html {
   background-color: #ffffff;
 }
@@ -16,10 +15,12 @@ html.dark {
   background-color: var(--color-gray-950);
 }
 
-/* Minimalist Design System - White & Indigo Theme */
-/* :host makes these variables resolve inside a shadow root too (the selection
-   card renders in one) — :root never matches there, :host is its counterpart,
-   and each selector is inert in the context the other one targets. */
+/* Tailwind v4 dropped this from Preflight; every <button> in the app needs it back */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+/* :host mirrors :root for the shadow-DOM selection card, where :root never matches */
 :root, :host {
   --primary-indigo: #4f46e5;
   --primary-indigo-light: #6366f1;
@@ -36,7 +37,18 @@ html.dark {
   --gray-800: #1e293b;
 }
 
-/* Clean animations */
+/* :host-only px pins stop a page's own root font-size from scaling the widget's text/spacing via rem */
+:host {
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-lg: 18px;
+  --text-2xl: 24px;
+  --spacing: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -91,7 +103,6 @@ html.dark {
   animation: spin 1s linear infinite;
 }
 
-/* Minimalist shadows */
 .shadow-minimal {
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
@@ -104,7 +115,6 @@ html.dark {
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* Clean focus styles */
 .focus-ring {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -115,19 +125,16 @@ html.dark {
   outline-offset: 2px;
 }
 
-/* Smooth transitions */
 .transition-all {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
 
-/* Custom border utilities */
 .border-l-3 {
   border-left-width: 3px;
 }
 
-/* Custom scrollbar for minimalist design */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -151,4 +158,122 @@ html.dark {
 
 .dark ::-webkit-scrollbar-thumb {
   background: var(--gray-600);
+}
+
+/* Classic skin — steel/pewter/brass light, amber phosphor-terminal dark */
+.classic {
+  --classic-surface: #d8d4cb;
+  --classic-panel: #e8e4da;
+  --classic-ink: #2b2620;
+  --classic-edge-light: #fdfdf6;
+  --classic-edge-dark: #6b6558;
+  --classic-accent: #8a6d3b;
+  --classic-font-body: Georgia, 'Times New Roman', serif;
+  --classic-font-ui: 'Courier New', monospace;
+}
+
+.classic.dark {
+  --classic-surface: #232520;
+  --classic-panel: #2e2f28;
+  --classic-ink: #e0ded2;
+  --classic-edge-light: #5a5b4d;
+  --classic-edge-dark: #0a0a08;
+  --classic-accent: #d99a3f;
+  --classic-font-body: 'Courier New', monospace;
+}
+
+.classic {
+  background-color: var(--classic-surface);
+  font-family: var(--classic-font-body);
+}
+
+/* recolors the modern scrollbar above — var() already resolves the right shade per skin/theme */
+.classic ::-webkit-scrollbar-track {
+  background: var(--classic-surface);
+}
+
+.classic ::-webkit-scrollbar-thumb {
+  background: var(--classic-edge-dark);
+  border-radius: 0;
+}
+
+.classic ::-webkit-scrollbar-thumb:hover {
+  background: var(--classic-accent);
+}
+
+/* scoped under .classic — without this guard these'd apply unconditionally, breaking Modern */
+.classic .classic-panel {
+  background-color: var(--classic-panel) !important;
+  background-image: none !important;
+  color: var(--classic-ink) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--classic-edge-light),
+    inset -1px -1px 0 var(--classic-edge-dark) !important;
+  font-family: var(--classic-font-body);
+}
+
+/* like .classic-panel but keeps the element's own status-tint background (error/warning/AI colors) */
+.classic .classic-box {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--classic-edge-light),
+    inset -1px -1px 0 var(--classic-edge-dark) !important;
+  font-family: var(--classic-font-body);
+}
+
+.classic .classic-button {
+  background-color: var(--classic-panel) !important;
+  color: var(--classic-ink) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: var(--classic-font-ui) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--classic-edge-light),
+    inset -1px -1px 0 var(--classic-edge-dark) !important;
+}
+
+.classic .classic-button:active {
+  box-shadow:
+    inset -1px -1px 0 var(--classic-edge-light),
+    inset 1px 1px 0 var(--classic-edge-dark) !important;
+}
+
+.classic .classic-inset {
+  background-color: var(--classic-surface) !important;
+  color: var(--classic-ink) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset -1px -1px 0 var(--classic-edge-light),
+    inset 1px 1px 0 var(--classic-edge-dark) !important;
+}
+
+.classic .classic-inset:focus-within {
+  box-shadow:
+    inset -1px -1px 0 var(--classic-accent),
+    inset 1px 1px 0 var(--classic-edge-dark) !important;
+}
+
+.classic .classic-divider {
+  border: none !important;
+  border-top: 1px solid var(--classic-edge-dark);
+  border-bottom: 1px solid var(--classic-edge-light);
+}
+
+.classic .classic-heading {
+  font-family: var(--classic-font-ui) !important;
+  color: var(--classic-ink) !important;
+}
+
+.classic .classic-accent {
+  color: var(--classic-accent) !important;
+}
+
+.classic .focus-ring:focus {
+  outline: 1px solid var(--classic-accent) !important;
+  outline-offset: 1px !important;
+  border-radius: 0 !important;
 }

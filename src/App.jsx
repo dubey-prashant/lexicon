@@ -4,6 +4,7 @@ import History from './components/History';
 import Favorites from './components/Favorites';
 import Settings from './components/Settings';
 import { useTheme } from './hooks/useTheme';
+import { useSkin } from './hooks/useSkin';
 import './style.css';
 
 // variant 'popup' renders as the fixed-size extension popup; variant 'web'
@@ -15,12 +16,13 @@ function App({ variant }) {
   // active — History doesn't render <Header> (where the toggle lives), so
   // this must run at this top level to guarantee the theme is always set.
   useTheme();
+  useSkin();
 
   const Router = variant === 'web' ? BrowserRouter : HashRouter;
   const shellClassName =
     variant === 'web'
-      ? 'max-w-md mx-auto py-8 px-4'
-      : 'w-96 min-h-[450px] bg-white dark:bg-gray-900 p-4 z-10 relative';
+      ? 'max-w-md mx-auto py-8 px-4 classic:bg-[var(--classic-surface)]'
+      : 'w-96 min-h-[450px] bg-white dark:bg-gray-900 classic:bg-[var(--classic-surface)] p-4 z-10 relative';
 
   return (
     <div className={shellClassName}>

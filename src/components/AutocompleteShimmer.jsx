@@ -21,9 +21,9 @@ const AutocompleteShimmer = ({ minimal = false }) => {
   if (minimal) {
     // Minimal shimmer for when we have suggestions but API is loading
     return (
-      <div className='px-3 py-1.5 border-t border-gray-100 dark:border-gray-700'>
+      <div className='classic-divider px-3 py-1.5 border-t border-gray-100 dark:border-gray-700'>
         <div className='flex items-center justify-center space-x-2'>
-          <div className='w-1.5 h-1.5 bg-indigo-200 dark:bg-indigo-800 rounded-full animate-pulse'></div>
+          <div className='w-1.5 h-1.5 bg-indigo-200 dark:bg-indigo-800 classic:bg-[var(--classic-accent)] rounded-full classic:rounded-none animate-pulse'></div>
           <div className='w-16 h-1.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded animate-shimmer bg-[length:200%_100%]'></div>
           <div
             className='w-1.5 h-1.5 bg-indigo-200 dark:bg-indigo-800 rounded-full animate-pulse'

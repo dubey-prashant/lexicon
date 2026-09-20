@@ -13,3 +13,19 @@ export async function isPillEnabled() {
 export async function setPillEnabled(enabled) {
   await storage.setItem(PILL_ENABLED_KEY, String(enabled));
 }
+
+// Extension-only: any selection on a page (drag, double-click, triple-click,
+// keyboard) looks it up immediately, skipping the pill. Off by default —
+// selecting text is used constantly for unrelated reasons (copying, editing
+// form fields), so this should only fire for someone who's deliberately
+// opted in.
+const INSTANT_LOOKUP_ENABLED_KEY = 'instant_lookup_enabled';
+
+export async function isInstantLookupEnabled() {
+  const value = await storage.getItem(INSTANT_LOOKUP_ENABLED_KEY);
+  return value === 'true'; // default off unless explicitly turned on
+}
+
+export async function setInstantLookupEnabled(enabled) {
+  await storage.setItem(INSTANT_LOOKUP_ENABLED_KEY, String(enabled));
+}

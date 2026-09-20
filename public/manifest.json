@@ -1,7 +1,7 @@
 {
   "name": "LEXICON",
   "description": "Fast English dictionary with pronunciations, examples, search history & word of the day.",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "author": "Prashant Dubey",
   "manifest_version": 3,
   "action": {

@@ -1,6 +1,28 @@
 import { setPendingLookup } from './services/pendingLookup';
+import { askAI } from './services/ai';
 
 const MENU_ID = 'lexicon-search-selection';
+
+// Relays Ask AI requests from content scripts — their fetches carry the
+// host page's origin, not the extension's, so the Worker's CORS check
+// rejects them. This script's own fetch always carries the extension's
+// origin, which the Worker does allow.
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type !== 'ASK_AI') return;
+
+  askAI(message.query)
+    .then((data) => sendResponse({ ok: true, data }))
+    .catch((err) =>
+      sendResponse({
+        ok: false,
+        message: err.message,
+        isQuotaExhausted: err.isQuotaExhausted,
+        isUpstreamOverloaded: err.isUpstreamOverloaded,
+      })
+    );
+
+  return true; // keep the message channel open for the async sendResponse
+});
 
 // Registering the menu on install/update, not on every worker wake-up —
 // chrome.contextMenus.create throws if an item with the same id already

@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import SelectionWidget from './SelectionWidget';
 import * as storage from '../services/storage';
 import { THEME_KEY, themeIsDark } from '../hooks/useTheme';
+import { SKIN_KEY } from '../hooks/useSkin';
 // ?inline gives us the compiled CSS as a string instead of injecting it into <head>, which a shadow root can't see anyway
 import contentStyles from '../style.css?inline';
 
@@ -29,9 +30,26 @@ function syncTheme(container) {
     .addEventListener('change', apply);
 }
 
+// same idea as syncTheme, but for the independent skin (modern/classic) setting
+function syncSkin(container) {
+  const apply = (skin) => container.classList.toggle('classic', skin === 'classic');
+
+  storage.getItem(SKIN_KEY).then((stored) => apply(stored || 'classic'));
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes[SKIN_KEY]) {
+      apply(changes[SKIN_KEY].newValue || 'classic');
+    }
+  });
+}
+
 function init() {
   const host = document.createElement('div');
   host.style.all = 'initial'; // stop the host page's CSS inheriting into us
+  // `all: initial` also resets font-family to the UA default (often serif) and,
+  // being inline, beats the shadow stylesheet's own :host font-family rule — restore it explicitly
+  host.style.fontFamily =
+    'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
   host.style.position = 'fixed';
   host.style.top = '0';
   host.style.left = '0';
@@ -50,6 +68,7 @@ function init() {
   shadowRoot.appendChild(container);
 
   syncTheme(container);
+  syncSkin(container);
 
   createRoot(container).render(<SelectionWidget hostElement={host} />);
 }

@@ -32,11 +32,11 @@ const Favorites = () => {
         <div className='flex items-center space-x-2'>
           <button
             onClick={() => navigate('/')}
-            className='bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 p-2 rounded-lg transition-all duration-200 focus-ring group'
+            className='classic-button bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 p-2 rounded-lg transition-all duration-200 focus-ring group'
             title='Back to Search'
           >
             <svg
-              className='w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+              className='w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 classic:text-[var(--classic-ink)] classic:group-hover:text-[var(--classic-accent)]'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'
@@ -49,7 +49,7 @@ const Favorites = () => {
               />
             </svg>
           </button>
-          <h1 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
+          <h1 className='classic-heading text-lg font-semibold text-gray-900 dark:text-gray-100'>
             Favorites
           </h1>
         </div>
@@ -57,7 +57,7 @@ const Favorites = () => {
         {favorites.length > 0 && (
           <button
             onClick={clearFavorites}
-            className='bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus-ring'
+            className='classic-button bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus-ring'
           >
             Clear All
           </button>
